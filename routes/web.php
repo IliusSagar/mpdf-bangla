@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\PdfController;
 use Illuminate\Support\Facades\Route;
+use Mpdf\Mpdf;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,15 +21,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('pdf', function(){
-    $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+Route::get('pdf', function() {
+    $defaultConfig = (new ConfigVariables())->getDefaults();
     $fontDirs = $defaultConfig['fontDir'];
 
-    $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
-    $fontData = $defaultFontConfig['fontData'];
+    $defaultFontConfig = (new FontVariables())->getDefaults();
+    $fontData = $defaultFontConfig['fontdata'];
 
     $path = public_path() . "/fonts";
-    $mpdf = new \Mpdf\Mpdf([
+    $mpdf = new Mpdf([
         'format' => 'A4',
         'orientation' => 'P',
         'fontDir' => array_merge($fontDirs, [$path]),
@@ -38,7 +42,10 @@ Route::get('pdf', function(){
         'default_font' => 'solaimanlipi'
     ]);
 
-    $mpdf->WriteHTML(view('pdf'));
-    $mpdf->Output('BracApproveDocument.pdf', 'I');
-
+    $html = view('pdf')->render();
+    $mpdf->WriteHTML($html);
+    $mpdf->Output('test.pdf', 'I');
 });
+
+
+Route::get('/generate-pdf', [PdfController::class, 'generatePdf']);
